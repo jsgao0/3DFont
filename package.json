@@ -31,5 +31,8 @@
   "scripts": {
     "test": "mocha test",
     "start": "node index.js"
+  },
+  "engines": {
+    "npm": "1.4.23"
   }
 }
