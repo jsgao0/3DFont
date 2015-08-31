@@ -6,51 +6,52 @@ var server = require('express')(),
 function webServer() {
 
 	function sendResponse(returnValue, response) {
-		// response.writeHead(200, {"Content-Type": "text/plain"});
-		// response.write(returnValue);
-		// response.end();
-		console.log(returnValue)
-		response.jsonp(JSON.parse(returnValue))
+		response.jsonp(JSON.parse(returnValue));
+	}
+
+	function sendError(returnCode, response) {
+		response.sendStatus(returnCode);
 	}
 
 	function getGlyfPathByChar(request, response) {
 		var charConfig = {
-			ttfFilePath: './ttfs/fzjzt.ttf',
+			ttfFilePath: './ttfs/' + request.params.ttf + '.ttf',
 			char: request.params.char
 		}
-		TTF2SVG.getGlyfPathByChar(charConfig, sendResponse, response);
+		TTF2SVG.getGlyfPathByChar(charConfig, sendResponse, sendError, response);
 	}
 
 	function serveTypefaceJS(request, response) {
 		var charConfig = {
-			ttfFilePath: './ttfs/fzjzt.ttf',
+			ttfFilePath: './ttfs/' + request.params.ttf + '.ttf',
 			char: request.params.char
 		}
-		TTF2SVG.makeTypefaceJS(charConfig, sendResponse, response);
+		TTF2SVG.makeTypefaceJS(charConfig, sendResponse, sendError, response);
 	}
 
 	function getGlyfPathByIndex(request, response) {
 		var charConfig = {
-			ttfFilePath: './ttfs/fzjzt.ttf',
+			ttfFilePath: './ttfs/' + request.params.ttf + '.ttf',
 			index: request.params.index
 		}
-		TTF2SVG.getGlyfPathByIndex(charConfig, sendResponse, response);
+		TTF2SVG.getGlyfPathByIndex(charConfig, sendResponse, sendError, response);
 	}
 
 	function getCharByIndex(request, response) {
+		// TODO
 		var charConfig = {
-			ttfFilePath: './ttfs/fzjzt.ttf',
+			ttfFilePath: './ttfs/' + request.params.ttf + '.ttf',
 			index: request.params.index
 		}
-		TTF2SVG.getCharByIndex(charConfig, sendResponse, response);
+		TTF2SVG.getCharByIndex(charConfig, sendResponse, sendError, response);
 	}
 
 	server
 		.get('/', function(req, res) {sendResponse(1, res)})
-		.get('/getGlyfPathByChar/:char', getGlyfPathByChar)
-		.get('/serveTypefaceJS/:char', serveTypefaceJS)
-		// .get('/getGlyfPathByIndex/:index', getGlyfPathByIndex)
-		// .get('/getCharByIndex/:index', getCharByIndex)
+		.get('/getGlyfPathByChar/:ttf/:char', getGlyfPathByChar)
+		.get('/serveTypefaceJS/:ttf/:char', serveTypefaceJS)
+		.get('/getGlyfPathByIndex/:ttf/:index', getGlyfPathByIndex)
+		// .get('/getCharByIndex/:ttf/:index', getCharByIndex)
 		.listen(process.env.PORT || 5000);
 
 	console.log("Web Server has started.");

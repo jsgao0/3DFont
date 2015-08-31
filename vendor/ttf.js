@@ -33,7 +33,6 @@
  */
 
 (function(global) {
-	console.log(global);
 	// import jDataView
 	if (typeof global.jDataView === 'undefined'
 			&& typeof require === 'function') {
