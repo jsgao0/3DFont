@@ -46,6 +46,7 @@ function webServer() {
 	}
 
 	server
+		.get('/', function(req, res) {sendResponse(1, res)})
 		.get('/getGlyfPathByChar/:char', getGlyfPathByChar)
 		.get('/serveTypefaceJS/:char', serveTypefaceJS)
 		// .get('/getGlyfPathByIndex/:index', getGlyfPathByIndex)
