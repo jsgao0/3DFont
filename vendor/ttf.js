@@ -37,8 +37,8 @@
 	// import jDataView
 	if (typeof global.jDataView === 'undefined'
 			&& typeof require === 'function') {
+		console.log(1)
 		var jDataView = require('jDataView');
-		console.log(jDataView);
 	} else {
 		var jDataView = global.jDataView;
 	}
