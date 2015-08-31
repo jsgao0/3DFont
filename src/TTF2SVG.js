@@ -44,12 +44,18 @@ var SVGgetter = {
             }).then(function(charGlyf) {
                 return charGlyf.path;
             }).then(function(glyfPath) {
-                return sendResponse(glyfPath, response);
+                var obj = new Object();
+                obj['char'] = charConfig.char;
+                obj['glyfPath'] = glyfPath;
+                return JSON.stringify(obj);
+            }).then(function(glyfPathJSONstr) {
+                return sendResponse(glyfPathJSONstr, response);
             }).fail(function(err) {
                 return sendResponse(err, response);
             }).done();
     },
     getGlyfPathByIndex: function(charConfig, sendResponse, response) {
+        // Testing
         q.nfcall(fs.readFile, charConfig.ttfFilePath)
             .then(function(data) {
                 return new ttfjs.TTF(data) || "";
