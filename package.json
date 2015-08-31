@@ -33,6 +33,7 @@
     "start": "node index.js"
   },
   "engines": {
-    "npm": "1.4.23"
+    "npm": "1.4.23",
+    "node": "0.10.31"
   }
 }
