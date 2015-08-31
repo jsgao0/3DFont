@@ -38,6 +38,7 @@
 	if (typeof global.jDataView === 'undefined'
 			&& typeof require === 'function') {
 		var jDataView = require('jDataView');
+		console.log(jDataView);
 	} else {
 		var jDataView = global.jDataView;
 	}
