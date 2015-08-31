@@ -50,7 +50,7 @@ function webServer() {
 		.get('/serveTypefaceJS/:char', serveTypefaceJS)
 		// .get('/getGlyfPathByIndex/:index', getGlyfPathByIndex)
 		// .get('/getCharByIndex/:index', getCharByIndex)
-		.listen(12345);
+		.listen(process.env.PORT || 5000);
 
 	console.log("Web Server has started.");
 }
