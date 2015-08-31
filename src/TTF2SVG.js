@@ -33,49 +33,57 @@ var SVGgetter = {
                  + " ";
         return o;
     },
-    getGlyfPathByChar: function(charConfig, sendResponse, response) {
-        q.nfcall(fs.readFile, charConfig.ttfFilePath)
-            .then(function(data) {
-                return new ttfjs.TTF(data);
-            }).then(function(ttfData) {
-                return [ttfData, ttfData.cmap.getGlyphIndex(charConfig.char)[1]];
-            }).spread(function(ttfData, charIndex) {
-                return ttfData.glyf[charIndex];
-            }).then(function(charGlyf) {
-                return charGlyf.path;
-            }).then(function(glyfPath) {
-                return sendResponse(glyfPath, response);
-            }).fail(function(err) {
-                return sendResponse(err, response);
-            }).done();
+    _wrapGlyfObj: function(index, char, glyfPath) {
+        var obj = new Object();
+        obj['index'] = index,
+        obj['char'] = char;
+        obj['glyfPath'] = glyfPath;
+        return obj;
     },
-    getGlyfPathByIndex: function(charConfig, sendResponse, response) {
+    _getGlyphIndex: function(ttfData, char) {
+        return ttfData.cmap.getGlyphIndex(char)[1];
+    },
+    _getCharByIndex: function(ttfData, index) {
+        //
+    },
+    getGlyfPathByChar: function(charConfig, sendResponse, sendError, response) {
         q.nfcall(fs.readFile, charConfig.ttfFilePath)
             .then(function(data) {
                 return new ttfjs.TTF(data) || "";
             }).then(function(ttfData) {
-                return ttfData.glyf[charConfig.index] || "";
-            }).then(function(charGlyf) {
-                return charGlyf.path || "";
-            }).then(function(charGlyfPath) {
-                return sendResponse(charGlyfPath, response);
+                return [ttfData, SVGgetter._getGlyphIndex(ttfData, charConfig.char)] || "";
+            }).spread(function(ttfData, charIndex) {
+                return [ttfData, ttfData.glyf[charIndex] || ""];
+            }).spread(function(ttfData, charGlyf) {
+                return [ttfData, charGlyf.path || ""];
+            }).spread(function(ttfData, glyfPath) {
+                return JSON.stringify(SVGgetter._wrapGlyfObj(SVGgetter._getGlyphIndex(ttfData, charConfig.char), charConfig.char, glyfPath));
+            }).then(function(glyfPathJSONstr) {
+                return sendResponse(glyfPathJSONstr, response);
             }).fail(function(err) {
-                return err;
+                console.log(err);
+                return sendError(500, response);
             }).done();
     },
-    getCharByIndex: function(charConfig, sendResponse, response) {
+    getGlyfPathByIndex: function(charConfig, sendResponse, sendError, response) {
         // Testing
         q.nfcall(fs.readFile, charConfig.ttfFilePath)
             .then(function(data) {
-                return new ttfjs.TTF(data);
+                return new ttfjs.TTF(data) || "";
             }).then(function(ttfData) {
-                ttfData.cmap.getCharByIndex(charConfig.index)
-                return sendResponse("1", response);
+                return [ttfData, ttfData.glyf[charConfig.index] || ""];
+            }).spread(function(ttfData, charGlyf) {
+                return [ttfData, charGlyf.path || ""];
+            }).spread(function(ttfData, glyfPath) {
+                return JSON.stringify(SVGgetter._wrapGlyfObj(charConfig.index, "", glyfPath));
+            }).then(function(glyfPathJSONstr) {
+                return sendResponse(glyfPathJSONstr, response);
             }).fail(function(err) {
-                return sendResponse(err, response);
+                console.log(err);
+                return sendError(500, response);
             }).done();
     },
-    makeTypefaceJS: function(charConfig, sendResponse, response) {
+    makeTypefaceJS: function(charConfig, sendResponse, sendError, response) {
         q.nfcall(fs.readFile, charConfig.ttfFilePath)
             .then(function(data) {
                 return new ttfjs.TTF(data);
@@ -90,7 +98,7 @@ var SVGgetter = {
             }).fail(function(err) {
                 console.log(new Date());
                 console.log("makeTypefaceJS Error: " + err);
-                return sendResponse(err, response);
+                return sendError(500, response);
             }).done();
     },
     doForLoopInTTF: function(charConfig, xyzapp) {
