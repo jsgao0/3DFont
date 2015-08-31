@@ -1,8 +1,12 @@
 {
-  "name": "SVG2Typeface",
+  "name": "3DFont-Feeder",
   "author": {
     "name": "jsgao0",
     "email": "s1496k030@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:jsgao0/3DFont-Feeder.git"
   },
   "version": "0.0.1",
   "description": "An API to serve glyf data.",
@@ -25,6 +29,7 @@
     "mocha": "^2.1.0"
   },
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test",
+    "start": "node index.js"
   }
 }
