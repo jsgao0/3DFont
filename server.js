@@ -53,8 +53,10 @@ function webServer() {
 		.get('/getGlyfPathByIndex/:ttf/:index', getGlyfPathByIndex)
 		// .get('/getCharByIndex/:ttf/:index', getCharByIndex)
 		.listen(process.env.PORT || 5000);
-
 	console.log("Web Server has started.");
+
+
+	return server;
 }
 
 module.exports.webServer = webServer;
