@@ -22,3 +22,6 @@ You will get the reponse as below:
 * You will get the data of only one single character even if you send above one character.
 * You will receive the data of the first character.
 * Reponse content type is JSONP.
+
+## References
+* [ynakajima/ttf.js](https://github.com/ynakajima/ttf.js/)
