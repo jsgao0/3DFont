@@ -53,11 +53,13 @@ var SVGgetter = {
             }).then(function(ttfData) {
                 return [ttfData, SVGgetter._getGlyphIndex(ttfData, charConfig.char)] || "";
             }).spread(function(ttfData, charIndex) {
-                return [ttfData, ttfData.glyf[charIndex] || ""];
-            }).spread(function(ttfData, charGlyf) {
-                return [ttfData, charGlyf.path || ""];
-            }).spread(function(ttfData, glyfPath) {
-                return JSON.stringify(SVGgetter._wrapGlyfObj(SVGgetter._getGlyphIndex(ttfData, charConfig.char), charConfig.char, glyfPath));
+                var charGlyf = ttfData.glyf[charIndex];
+                ttfData = null;
+                return [charIndex, charGlyf || ""];
+            }).spread(function(charIndex, charGlyf) {
+                return [charIndex, charGlyf.path || ""];
+            }).spread(function(charIndex, glyfPath) {
+                return JSON.stringify(SVGgetter._wrapGlyfObj(charIndex, charConfig.char, glyfPath));
             }).then(function(glyfPathJSONstr) {
                 return sendResponse(glyfPathJSONstr, response);
             }).fail(function(err) {
@@ -75,6 +77,7 @@ var SVGgetter = {
             }).spread(function(ttfData, charGlyf) {
                 return [ttfData, charGlyf.path || ""];
             }).spread(function(ttfData, glyfPath) {
+                ttfData = null;
                 return JSON.stringify(SVGgetter._wrapGlyfObj(charConfig.index, "", glyfPath));
             }).then(function(glyfPathJSONstr) {
                 return sendResponse(glyfPathJSONstr, response);
@@ -90,7 +93,9 @@ var SVGgetter = {
             }).then(function(ttfData) {
                 return [ttfData, ttfData.cmap.getGlyphIndex(charConfig.char)[1]];
             }).spread(function(ttfData, charIndex) {
-                return ttfData.glyf[charIndex];
+                var charGlyf = ttfData.glyf[charIndex];
+                ttfData = null;
+                return charGlyf;
             }).then(function(charGlyf) {
                 return JSON.stringify(SVGgetter._wrapTypeface(charGlyf));
             }).then(function(typeface) {
