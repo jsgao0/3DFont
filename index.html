@@ -1,161 +1,260 @@
-<!DOCTYPE html>
+<!DOCTYPE>
 <html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+		<link href='https://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="http://kovacsv.github.io/JSModeler/documentation/tutorial/include/tutorial.css">
+		<script type="text/javascript" src="http://kovacsv.github.io/JSModeler/documentation/libs/pathseg.js"></script>
+		<script type="text/javascript" src="http://kovacsv.github.io/JSModeler/build/jsmodeler.js"></script>
+		<script type="text/javascript" src="http://kovacsv.github.io/JSModeler/build/jsmodeler.ext.svgtomodel.js"></script>
+		<script type="text/javascript" src="http://kovacsv.github.io/JSModeler/build/three.min.js"></script>
+		<script type="text/javascript" src="http://kovacsv.github.io/JSModeler/build/jsmodeler.ext.three.js"></script>
+		<title>SVG 2D To 3D With JSModeler</title>
+		<script type="text/javascript">
+			function jsonp(url, callback) {
+			    var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+			    window[callbackName] = function(data) {
+			        callback(data);
+			        delete window[callbackName];
+			        document.body.removeChild(script);
+			    };
+			    var script = document.createElement('script');
+			    script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+			    document.body.appendChild(script);
+			}
 
-    <title>3dfont-feeder by jsgao0</title>
-    
-    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r71/three.js"></script>
-    <script type="text/javascript" src="http://kovacsv.github.io/JSModeler/build/jsmodeler.js"></script>
-    <script type="text/javascript" src="http://kovacsv.github.io/JSModeler/build/jsmodeler.viewer.js"></script>
-    <script type="text/javascript">
+			function Load(path)
+			{
+				var viewerSettings = {
+					cameraEyePosition : [-3.0, 3.0, 0],
+					cameraCenterPosition : [0.0, 0.0, 0.0],
+					cameraUpVector : [0.0, 0.0, 1.0]
+				};
 
-    var viewer = null;
-  
-    function OpenSVG (index)
-    {
-      if (viewer == null) {
-        alert ('Your browser does not support WebGL.');
-        return;
-      }
-    
-      var floating = document.getElementById ('floating');
-      floating.style.display = 'block';
-      Resize ();
+				var viewer = new JSM.ThreeViewer ();
+				viewer.Start (document.getElementById ('example'), viewerSettings);
 
-      viewer.RemoveMeshes ();
-      
-      var svgObjects = document.getElementsByTagName ('svg');
-      if (svgObjects.length <= index) {
-        return;
-      }
+				var svgObject = document.getElementById ('svgid');
+				svgObject.querySelectorAll('path')[0].setAttribute('d', path);
+				var modelAndMaterials = JSM.SvgToModel (svgObject, 8, 5);
+				var model = modelAndMaterials[0];
+				var materials = modelAndMaterials[1];
+				var meshes = JSM.ConvertModelToThreeMeshes (model, materials);
+				viewer.AddMeshes (meshes);
 
-      var modelAndMaterials = JSM.SvgToModel (svgObjects[index], 8, 5, null);
-      var meshes = JSM.ConvertModelToThreeMeshes (modelAndMaterials[0], modelAndMaterials[1]);
-      viewer.AddMeshes (meshes);
+				viewer.FitInWindow ();
+				viewer.Draw ();
+			}
 
-      viewer.FitInWindow ();
-      viewer.Draw ();
-    }
+			function getParameterByName(name, url) {
+			    if (!url) url = window.location.href;
+			    name = name.replace(/[\[\]]/g, "\\$&");
+			    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+			        results = regex.exec(url);
+			    if (!results) return null;
+			    if (!results[2]) return '';
+			    return decodeURIComponent(results[2].replace(/\+/g, " "));
+			}
 
-    function Load ()
-    {
-      var viewerSettings = {
-        cameraEyePosition : [-3, -2, 1.0],
-        cameraCenterPosition : [0.0, 0.0, 0.0],
-        cameraUpVector : [0.0, 0.0, 1.0],
-        nearClippingPlane : 1.0,
-        farClippingPlane : 100000.0
-      };
+			function hideLoader() {
+				document.getElementById("loader").style.display = 'none';
+			}
+		
+		    window.onload = function ()
+			{
+				var ch = getParameterByName('char');
+				jsonp('https://jsgao0-3d-font-feeder.herokuapp.com/getGlyfPathByChar/msjh/' + ch, function(data) {
+					var path = data.glyfPath;
+					Load(path);
+					hideLoader();
+				});
+							
+			}
+		</script>
+		<style type="text/css">
+			html, body {
+			  height: 100%;
+			  min-height: 100%;
+			  padding: 0;
+			  border: 0 none;
+			  margin: 0;
+			}
 
-      viewer = new JSM.ThreeViewer ();
-      if (!viewer.Start (document.getElementById ('svgcanvas'), viewerSettings)) {
-        viewer = null;
-      } else {
-        viewer.navigation.EnablePan (false);
-      }
-    }
-    
-    function DocumentClick (clickEvent)
-    {
-      var floating = document.getElementById ('floating');
-      var isInFloating = false;
-      
-      var target = clickEvent.target;
-      while (target !== null) {
-        if (target === floating) {
-          isInFloating = true;
-          break;
-        }
-        target = target.parentElement;
-      }
-      
-      if (!isInFloating) {
-        if (floating.style.display !== 'none') {
-          floating.style.display = 'none';
-        }
-      }
-    }
+			.loader-box {
+				position: absolute;
+				top: 0;
+				left: 0;
+			  	height: 100%;
+			  	width: 100%;
+			}
 
-    function DocumentKeyDown (keyEvent)
-    {
-      var floating = document.getElementById ('floating');
-      if (keyEvent.keyCode == 27) {
-        floating.style.display = 'none';
-      }
-    }
-    
-    function Resize ()
-    {
-      var floating = document.getElementById ('floating');
-      var canvas = document.getElementById ('svgcanvas');
-      if (floating.style.display === 'block') {
-        var floatingMargin = 80;
-        var left = window.pageXOffset + floatingMargin;
-        var top = window.pageYOffset + floatingMargin;
-        floating.style.left = left + 'px';
-        floating.style.top = top + 'px';
-        floating.style.width = (window.innerWidth - 2.0 * floatingMargin) + 'px';
-        floating.style.height = (window.innerHeight - 2.0 * floatingMargin) + 'px';
-        canvas.width = window.innerWidth - 2.0 * floatingMargin;
-        canvas.height = window.innerHeight - 2.0 * floatingMargin;
-        if (viewer != null) {
-          viewer.Resize ();
-        }
-      }
-    }
+			.loader-container {
+			  background: rgba(0, 0, 0, 0.8);
+			  box-sizing: border-box;
+			  height: 100%;
+			  padding-top: 5em;
+			  position: relative;
+			}
 
-    function getSVGPath(char, callback) {
-      $.ajax({
-        url: "https://jsgao0-3d-font-feeder.herokuapp.com/getGlyfPathByChar/msjh/" + char,
-        method: "GET",
-        dataType: "jsonp"
-      }).done(function(data) {
-        callback(data);
-      })
-    }
+			.loader-text {
+			  color: #fff;
+			  font-family: 'Lobster', cursive;
+			  font-size: 1.25em;
+			  position: absolute;
+			  top: 7.21875em;
+			  left: calc(50% - 40px);
+			  text-align: center;
+			  width: 66px;
+			  overflow-x: hidden;
+			  -webkit-animation: dot 1.4s infinite linear;
+			  animation: dot 1.4s infinite linear;
+			}
 
-    window.onload = function ()
-    {
-      window.onresize = Resize;
-      window.onscroll = Resize;
-      document.onclick = DocumentClick;
-      document.onkeydown = DocumentKeyDown;
+			.loader-text::first-letter {
+			  font-size: 1.5625em;
+			}
 
-      Resize ();
-      Load ();
-    }
-  
-    </script>
-  </head>
+			@-webkit-keyframes dot {
+			  0% {
+			    width: 66px;
+			  }
+			  24.9% {
+			    width: 66px;
+			  }
+			  25% {
+			    width: 70px;
+			  }
+			  49.9% {
+			    width: 70px;
+			  }
+			  50% {
+			    width: 75px;
+			  }
+			  74.9% {
+			    width: 75px;
+			  }
+			  75% {
+			    width: 81px;
+			  }
+			  100% {
+			    width: 81px;
+			  }
+			}
+			@keyframes dot {
+			  0% {
+			    width: 66px;
+			  }
+			  24.9% {
+			    width: 66px;
+			  }
+			  25% {
+			    width: 70px;
+			  }
+			  49.9% {
+			    width: 70px;
+			  }
+			  50% {
+			    width: 75px;
+			  }
+			  74.9% {
+			    width: 75px;
+			  }
+			  75% {
+			    width: 81px;
+			  }
+			  100% {
+			    width: 81px;
+			  }
+			}
+			.loader-circle {
+			  margin: 0 auto;
+			  width: 11em;
+			  height: 11em;
+			  border-radius: 50%;
+			  background: #ffffff;
+			  background: -moz-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+			  background: -webkit-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+			  background: -o-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+			  background: -ms-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+			  background: linear-gradient(to right, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+			  position: relative;
+			  -webkit-animation: spin 1.4s infinite linear;
+			  animation: spin 1.4s infinite linear;
+			}
 
-  <body>
+			.loader-circle:before {
+			  width: 50%;
+			  height: 50%;
+			  background: #FFF;
+			  border-radius: 100% 0 0 0;
+			  position: absolute;
+			  top: 0;
+			  left: 0;
+			  content: '';
+			}
 
-    <header>
-      <div class="container">
-        <h1>3dfont-feeder</h1>
-        <h2>Abstract svg path from TTF and response JSON.</h2>
+			.loader-circle:after {
+			  background: #000;
+			  width: 75%;
+			  height: 75%;
+			  border-radius: 50%;
+			  content: '';
+			  margin: auto;
+			  position: absolute;
+			  top: 0;
+			  left: 0;
+			  bottom: 0;
+			  right: 0;
+			}
 
-        <section id="downloads">
-          <a href="https://github.com/jsgao0/3DFont-Feeder/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/jsgao0/3DFont-Feeder/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/jsgao0/3DFont-Feeder" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+			@-webkit-keyframes spin {
+			  0% {
+			    -webkit-transform: rotate(0deg);
+			    transform: rotate(0deg);
+			  }
+			  100% {
+			    -webkit-transform: rotate(360deg);
+			    transform: rotate(360deg);
+			  }
+			}
+			@keyframes spin {
+			  0% {
+			    -webkit-transform: rotate(0deg);
+			    transform: rotate(0deg);
+			  }
+			  100% {
+			    -webkit-transform: rotate(360deg);
+			    transform: rotate(360deg);
+			  }
+			}
 
-    <div class="container">
-      <section id="main_content">
-        <canvas></canvas>
-      </section>
-    </div>
+			svg {
+				transform: rotateY(180deg);
+			}
+		</style>
+	</head>
 
-    
-  </body>
+	<body>
+		<div class="header">
+			<div class="title">SVG 2D To 3D With JSModeler</div>
+			<div class="subtitle"><a class="link" href="https://github.com/jsgao0/3DFont-Feeder">https://github.com/jsgao0/3DFont-Feeder</a></div>
+			<div class="subtitle"><a class="link" href="https://github.com/kovacsv/JSModeler">https://github.com/kovacsv/JSModeler</a></div>
+		</div>
+		<div class="frame">
+			<center>
+				<svg id="svgid" xmlns="http://www.w3.org/2000/svg" version="1.1" width="180" height="180" viewBox="0 0 180 180" segmentlength="1">
+					<g transform="translate(120, 90) scale(0.05) translate(-90, -90) rotate(180 180 180)" stroke-width="6" fill="none">
+						<path style="fill:#ff0000;" d="" stroke="#4a87ee"/>
+					</g>
+				</svg>
+			</center>
+			<canvas class="demo" id="example" width="800" height="350" style="width: 800px; height: 350px;"></canvas>
+		</div>
+		<div id="loader" class="loader-box">
+			<div class="loader-container">
+				<div class="loader-circle"></div>
+				<div class="loader-text">Loading...</div>
+			</div>
+		</div>
+	</body>
 </html>
